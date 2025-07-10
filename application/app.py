@@ -26,11 +26,6 @@ metrics = PrometheusMetrics(app)
 # Add information about the app for Prometheus
 metrics.info("app_info", "App Info, this can be anything you want", version="1.0.0")
 
-# Prometheus route to expose metrics
-@app.route("/metrics")
-def metrics_route():
-    return metrics.collect()
-
 # Route for the home page
 @app.route('/')
 def hello():
