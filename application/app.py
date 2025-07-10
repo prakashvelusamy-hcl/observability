@@ -19,11 +19,8 @@ app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'default_db')
 # Initialize MySQL
 mysql = MySQL(app)
 
-# Initialize Prometheus metrics exporter
+# Initialize Prometheus metrics exporter (no need to specify route here)
 metrics = PrometheusMetrics(app)
-
-# Explicitly set the /metrics endpoint
-metrics.init_app(app, route='/metrics')
 
 # Log metric exposure
 @app.before_first_request
