@@ -1,13 +1,12 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_mysqldb import MySQL
-from prometheus_flask_exporter import PrometheusMetrics  # Import the exporter
+from prometheus_flask_exporter import PrometheusMetrics
 import logging
 
-# Initialize the Flask application
 app = Flask(__name__)
 
-# Setup logging for debugging purposes
+# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
 # Configure MySQL from environment variables
@@ -22,10 +21,8 @@ mysql = MySQL(app)
 # Initialize Prometheus metrics exporter
 metrics = PrometheusMetrics(app)
 
-# Log metric exposure at startup
-@app.before_first_request
-def before_first_request():
-    app.logger.debug("Prometheus metrics exposed at /metrics")
+# Explicitly define the /metrics route
+metrics.init_app(app, route='/metrics')
 
 # Create a custom metric to count the number of orders created
 order_created_counter = metrics.counter('orders_created_total', 'Total number of orders created')
@@ -48,10 +45,9 @@ def submit():
     cur.close()
 
     # Increment the order created counter whenever an order is submitted
-    order_created_counter.inc()  # Increment the counter
+    order_created_counter.inc()
 
     return redirect(url_for('hello'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
