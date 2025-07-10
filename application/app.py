@@ -25,6 +25,7 @@ metrics = PrometheusMetrics(app)
 metrics.init_app(app, route='/metrics')
 
 # Create a custom metric to count the number of orders created
+# This creates a counter that tracks orders created (just for illustrative purposes)
 order_created_counter = metrics.counter('orders_created_total', 'Total number of orders created')
 
 @app.route('/')
@@ -44,8 +45,8 @@ def submit():
     mysql.connection.commit()
     cur.close()
 
-    # Increment the order created counter whenever an order is submitted
-    order_created_counter.inc()
+    # Increment the counter whenever an order is created (when a message is submitted)
+    order_created_counter.inc()  # Increment the counter when an order is submitted
 
     return redirect(url_for('hello'))
 
