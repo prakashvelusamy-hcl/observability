@@ -23,6 +23,11 @@ mysql = MySQL(app)
 # Initialize Prometheus metrics exporter
 metrics = PrometheusMetrics(app)
 
+# Explicitly set /metrics route if necessary
+@app.route('/metrics')
+def metrics_route():
+    return metrics.generate_latest()
+
 # Add information about the app for Prometheus
 metrics.info("app_info", "App Info, this can be anything you want", version="1.0.0")
 
