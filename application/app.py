@@ -19,10 +19,10 @@ app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'default_db')
 # Initialize MySQL
 mysql = MySQL(app)
 
-# Initialize Prometheus metrics exporter (no need to specify route here)
+# Initialize Prometheus metrics exporter
 metrics = PrometheusMetrics(app)
 
-# Log metric exposure
+# Log metric exposure at startup
 @app.before_first_request
 def before_first_request():
     app.logger.debug("Prometheus metrics exposed at /metrics")
@@ -40,6 +40,7 @@ def hello():
     return render_template('index.html', messages=messages)
 
 @app.route('/submit', methods=['POST'])
+@order_created_counter.count_exceptions()  # This decorator automatically increments the counter
 def submit():
     new_message = request.form.get('new_message')
     cur = mysql.connection.cursor()
@@ -47,9 +48,7 @@ def submit():
     mysql.connection.commit()
     cur.close()
 
-    # Increment the order created counter whenever an order is submitted
-    order_created_counter.inc()
-
+    # The decorator @order_created_counter.count_exceptions() takes care of incrementing the counter
     return redirect(url_for('hello'))
 
 if __name__ == '__main__':
