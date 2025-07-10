@@ -2,8 +2,13 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_mysqldb import MySQL
 from prometheus_flask_exporter import PrometheusMetrics  # Import the exporter
+import logging
 
+# Initialize the Flask application
 app = Flask(__name__)
+
+# Setup logging for debugging purposes
+logging.basicConfig(level=logging.DEBUG)
 
 # Configure MySQL from environment variables
 app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', 'localhost')
@@ -17,8 +22,15 @@ mysql = MySQL(app)
 # Initialize Prometheus metrics exporter
 metrics = PrometheusMetrics(app)
 
+# Explicitly set the /metrics endpoint
+metrics.init_app(app, route='/metrics')
+
+# Log metric exposure
+@app.before_first_request
+def before_first_request():
+    app.logger.debug("Prometheus metrics exposed at /metrics")
+
 # Create a custom metric to count the number of orders created
-# This is a counter metric that will track the number of API calls to '/api/orders'
 order_created_counter = metrics.counter('orders_created_total', 'Total number of orders created')
 
 @app.route('/')
