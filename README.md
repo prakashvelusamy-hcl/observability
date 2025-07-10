@@ -11,3 +11,10 @@ kubectl port-forward svc/kube-prometheus-stack-grafana -n monitoring --address 0
 kubectl port-forward --address=0.0.0.0 svc/two-tier-app-service 5000:80
 
 
+scrape_configs:
+  - job_name: 'flask-app'
+    static_configs:
+      - targets: ['<flask-app-ip>:5000']  # Replace <flask-app-ip> with your Flask app's IP
+    metrics_path: '/metrics'
+
+
