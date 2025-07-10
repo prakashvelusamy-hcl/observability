@@ -40,7 +40,6 @@ def hello():
     return render_template('index.html', messages=messages)
 
 @app.route('/submit', methods=['POST'])
-@order_created_counter.count_exceptions()  # This decorator automatically increments the counter
 def submit():
     new_message = request.form.get('new_message')
     cur = mysql.connection.cursor()
@@ -48,8 +47,11 @@ def submit():
     mysql.connection.commit()
     cur.close()
 
-    # The decorator @order_created_counter.count_exceptions() takes care of incrementing the counter
+    # Increment the order created counter whenever an order is submitted
+    order_created_counter.inc()  # Increment the counter
+
     return redirect(url_for('hello'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
